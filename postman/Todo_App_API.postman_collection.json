@@ -1,0 +1,1280 @@
+{
+	"info": {
+		"_postman_id": "todo-app-api-collection",
+		"name": "Todo Application API",
+		"description": "Comprehensive Todo List Application API with Projects, Todos, Subtasks, Notes, Release Versions, Scheduled Tasks, and Time Tracking",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"version": {
+			"major": 1,
+			"minor": 0,
+			"patch": 0
+		}
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{auth_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "project_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "todo_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "subtask_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "note_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "release_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "scheduled_task_id",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePassword123!\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"username\": \"johndoe\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"  const response = pm.response.json();",
+									"  if (response.data && response.data.access_token) {",
+									"    pm.collectionVariables.set('auth_token', response.data.access_token);",
+									"  }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Projects",
+			"item": [
+				{
+					"name": "Create Project",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"  const response = pm.response.json();",
+									"  if (response.data && response.data.id) {",
+									"    pm.collectionVariables.set('project_id', response.data.id);",
+									"  }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Mobile App Development\",\n  \"description\": \"Building a cross-platform mobile application\",\n  \"category\": \"work\",\n  \"color_theme\": \"#2ecc71\",\n  \"image_url\": \"https://example.com/project-image.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/projects",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "projects"]
+						}
+					}
+				},
+				{
+					"name": "Get User Projects",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/projects?include_counts=true&include_archived=false",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "projects"],
+							"query": [
+								{
+									"key": "include_counts",
+									"value": "true"
+								},
+								{
+									"key": "include_archived",
+									"value": "false"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Project by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/projects/{{project_id}}?include_counts=true",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "projects", "{{project_id}}"],
+							"query": [
+								{
+									"key": "include_counts",
+									"value": "true"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Project",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Updated Mobile App Development\",\n  \"description\": \"Building an amazing cross-platform mobile application\",\n  \"is_favorite\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/projects/{{project_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "projects", "{{project_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Search Projects",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/projects/search?q=mobile&limit=10&offset=0",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "projects", "search"],
+							"query": [
+								{
+									"key": "q",
+									"value": "mobile"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Project Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/projects/stats?include_archived=false",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "projects", "stats"],
+							"query": [
+								{
+									"key": "include_archived",
+									"value": "false"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Favorite Projects",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/projects/favorites",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "projects", "favorites"]
+						}
+					}
+				},
+				{
+					"name": "Get Projects by Category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/projects/category/work",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "projects", "category", "work"]
+						}
+					}
+				},
+				{
+					"name": "Archive Project",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/projects/{{project_id}}/archive",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "projects", "{{project_id}}", "archive"]
+						}
+					}
+				},
+				{
+					"name": "Restore Project",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/projects/{{project_id}}/restore",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "projects", "{{project_id}}", "restore"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Todos",
+			"item": [
+				{
+					"name": "Create Todo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"  const response = pm.response.json();",
+									"  if (response.data && response.data.id) {",
+									"    pm.collectionVariables.set('todo_id', response.data.id);",
+									"  }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"project_id\": \"{{project_id}}\",\n  \"task_name\": \"Design User Interface\",\n  \"task_description\": \"Create wireframes and mockups for the main screens\",\n  \"priority\": \"high\",\n  \"estimated_time\": 480,\n  \"time_unit\": \"minutes\",\n  \"due_date\": \"2024-02-15T17:00:00Z\",\n  \"tags\": [\"design\", \"ui\", \"wireframes\"],\n  \"difficulty_rating\": 7,\n  \"energy_level_required\": 4,\n  \"context\": \"@computer\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/todos",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "todos"]
+						}
+					}
+				},
+				{
+					"name": "Get User Todos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/todos?limit=20&offset=0&include_related=true&sort_by=created_at&sort_order=desc",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "todos"],
+							"query": [
+								{
+									"key": "limit",
+									"value": "20"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								},
+								{
+									"key": "include_related",
+									"value": "true"
+								},
+								{
+									"key": "sort_by",
+									"value": "created_at"
+								},
+								{
+									"key": "sort_order",
+									"value": "desc"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Todo by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/todos/{{todo_id}}?include_related=true",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "todos", "{{todo_id}}"],
+							"query": [
+								{
+									"key": "include_related",
+									"value": "true"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Todo",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"in_progress\",\n  \"actual_time\": 120,\n  \"task_description\": \"Create detailed wireframes and interactive mockups for the main screens\",\n  \"priority\": \"urgent\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/todos/{{todo_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "todos", "{{todo_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Project Todos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/projects/{{project_id}}/todos?include_completed=false",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "projects", "{{project_id}}", "todos"],
+							"query": [
+								{
+									"key": "include_completed",
+									"value": "false"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Search Todos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/todos/search?q=design&limit=10&offset=0",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "todos", "search"],
+							"query": [
+								{
+									"key": "q",
+									"value": "design"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Mark Todo Complete",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/todos/{{todo_id}}/complete",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "todos", "{{todo_id}}", "complete"]
+						}
+					}
+				},
+				{
+					"name": "Mark Todo Incomplete",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/todos/{{todo_id}}/incomplete",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "todos", "{{todo_id}}", "incomplete"]
+						}
+					}
+				},
+				{
+					"name": "Pin Todo",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"pinned\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/todos/{{todo_id}}/pin",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "todos", "{{todo_id}}", "pin"]
+						}
+					}
+				},
+				{
+					"name": "Get Overdue Todos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/todos/overdue",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "todos", "overdue"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Subtasks",
+			"item": [
+				{
+					"name": "Create Subtask",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"  const response = pm.response.json();",
+									"  if (response.data && response.data.id) {",
+									"    pm.collectionVariables.set('subtask_id', response.data.id);",
+									"  }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Create login screen mockup\",\n  \"description\": \"Design the user login interface\",\n  \"priority\": \"medium\",\n  \"estimated_time\": 60,\n  \"sort_order\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/todos/{{todo_id}}/subtasks",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "todos", "{{todo_id}}", "subtasks"]
+						}
+					}
+				},
+				{
+					"name": "Get Subtasks",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/todos/{{todo_id}}/subtasks?include_archived=false",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "todos", "{{todo_id}}", "subtasks"],
+							"query": [
+								{
+									"key": "include_archived",
+									"value": "false"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Subtask",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"completed\",\n  \"actual_time\": 45\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/subtasks/{{subtask_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "subtasks", "{{subtask_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Reorder Subtasks",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subtask_ids\": [\"{{subtask_id}}\", \"another-subtask-id\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/todos/{{todo_id}}/subtasks/reorder",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "todos", "{{todo_id}}", "subtasks", "reorder"]
+						}
+					}
+				},
+				{
+					"name": "Delete Subtask",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/subtasks/{{subtask_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "subtasks", "{{subtask_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Notes",
+			"item": [
+				{
+					"name": "Create Note",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"  const response = pm.response.json();",
+									"  if (response.data && response.data.id) {",
+									"    pm.collectionVariables.set('note_id', response.data.id);",
+									"  }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Design Guidelines\",\n  \"content\": \"Remember to follow Material Design principles. Use primary colors: #2196F3 and #FFC107\",\n  \"note_type\": \"reminder\",\n  \"tags\": [\"design\", \"guidelines\", \"colors\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/todos/{{todo_id}}/notes",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "todos", "{{todo_id}}", "notes"]
+						}
+					}
+				},
+				{
+					"name": "Get Notes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/todos/{{todo_id}}/notes",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "todos", "{{todo_id}}", "notes"]
+						}
+					}
+				},
+				{
+					"name": "Update Note",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"Updated design guidelines - Follow Material Design 3 principles. Primary colors: #2196F3 and #FFC107\",\n  \"is_pinned\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/notes/{{note_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "notes", "{{note_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Search Notes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/todos/{{todo_id}}/notes/search?q=design",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "todos", "{{todo_id}}", "notes", "search"],
+							"query": [
+								{
+									"key": "q",
+									"value": "design"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Note",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/notes/{{note_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "notes", "{{note_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Release Versions",
+			"item": [
+				{
+					"name": "Create Release Version",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"  const response = pm.response.json();",
+									"  if (response.data && response.data.id) {",
+									"    pm.collectionVariables.set('release_id', response.data.id);",
+									"  }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"project_id\": \"{{project_id}}\",\n  \"version_name\": \"MVP Release\",\n  \"version_number\": \"v1.0.0\",\n  \"description\": \"Minimum viable product with core features\",\n  \"target_date\": \"2024-03-15\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/release-versions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "release-versions"]
+						}
+					}
+				},
+				{
+					"name": "Get Release Version",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/release-versions/{{release_id}}?include_counts=true",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "release-versions", "{{release_id}}"],
+							"query": [
+								{
+									"key": "include_counts",
+									"value": "true"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Project Release Versions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/projects/{{project_id}}/release-versions?include_counts=true",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "projects", "{{project_id}}", "release-versions"],
+							"query": [
+								{
+									"key": "include_counts",
+									"value": "true"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Release Version",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"description\": \"Enhanced MVP with additional features and improvements\",\n  \"target_date\": \"2024-03-20\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/release-versions/{{release_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "release-versions", "{{release_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Mark as Released",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"release_notes\": \"Successfully launched MVP with all core features. Fixed critical bugs and improved performance.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/release-versions/{{release_id}}/release",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "release-versions", "{{release_id}}", "release"]
+						}
+					}
+				},
+				{
+					"name": "Get Upcoming Releases",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/release-versions/upcoming?days_ahead=30",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "release-versions", "upcoming"],
+							"query": [
+								{
+									"key": "days_ahead",
+									"value": "30"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Overdue Releases",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/release-versions/overdue",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "release-versions", "overdue"]
+						}
+					}
+				},
+				{
+					"name": "Get Release Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/release-versions/{{release_id}}/stats",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "release-versions", "{{release_id}}", "stats"]
+						}
+					}
+				},
+				{
+					"name": "Get Release Todos Progress",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/release-versions/{{release_id}}/todos",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "release-versions", "{{release_id}}", "todos"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Scheduled Tasks",
+			"item": [
+				{
+					"name": "Create Scheduled Task",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"  const response = pm.response.json();",
+									"  if (response.data && response.data.id) {",
+									"    pm.collectionVariables.set('scheduled_task_id', response.data.id);",
+									"  }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"todo_id\": \"{{todo_id}}\",\n  \"scheduled_datetime\": \"2024-02-15T09:00:00Z\",\n  \"duration_minutes\": 240,\n  \"reminder_minutes_before\": 30,\n  \"location\": \"Office - Design Room\",\n  \"notification_frequency\": \"once\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/scheduled-tasks",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "scheduled-tasks"]
+						}
+					}
+				},
+				{
+					"name": "Get User Scheduled Tasks",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/scheduled-tasks?from_date=2024-02-01T00:00:00Z&to_date=2024-02-29T23:59:59Z",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "scheduled-tasks"],
+							"query": [
+								{
+									"key": "from_date",
+									"value": "2024-02-01T00:00:00Z"
+								},
+								{
+									"key": "to_date",
+									"value": "2024-02-29T23:59:59Z"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Scheduled Task",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"scheduled_datetime\": \"2024-02-15T10:00:00Z\",\n  \"duration_minutes\": 180,\n  \"reminder_minutes_before\": 15\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/scheduled-tasks/{{scheduled_task_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "scheduled-tasks", "{{scheduled_task_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Scheduled Task",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/scheduled-tasks/{{scheduled_task_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "scheduled-tasks", "{{scheduled_task_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Time Tracking",
+			"item": [
+				{
+					"name": "Start Time Tracking",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"todo_id\": \"{{todo_id}}\",\n  \"description\": \"Working on UI design wireframes\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/time-entries/start",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "time-entries", "start"]
+						}
+					}
+				},
+				{
+					"name": "Stop Time Tracking",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/time-entries/stop",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "time-entries", "stop"]
+						}
+					}
+				},
+				{
+					"name": "Get Active Time Entry",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/time-entries/active",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "time-entries", "active"]
+						}
+					}
+				},
+				{
+					"name": "Get User Time Entries",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/time-entries?from_date=2024-02-01T00:00:00Z&to_date=2024-02-29T23:59:59Z&limit=20&offset=0",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "time-entries"],
+							"query": [
+								{
+									"key": "from_date",
+									"value": "2024-02-01T00:00:00Z"
+								},
+								{
+									"key": "to_date",
+									"value": "2024-02-29T23:59:59Z"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Dashboard",
+			"item": [
+				{
+					"name": "Get Project Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/dashboard/projects",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "dashboard", "projects"]
+						}
+					}
+				},
+				{
+					"name": "Get Todo Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/dashboard/todos?limit=10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "dashboard", "todos"],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Overdue Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/dashboard/overdue",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "dashboard", "overdue"]
+						}
+					}
+				},
+				{
+					"name": "Get Upcoming Releases Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/dashboard/upcoming-releases?days_ahead=14",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "dashboard", "upcoming-releases"],
+							"query": [
+								{
+									"key": "days_ahead",
+									"value": "14"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Scheduled Tasks Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/dashboard/scheduled-tasks",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "dashboard", "scheduled-tasks"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Analytics",
+			"item": [
+				{
+					"name": "Get Project Analytics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/analytics/project-stats?include_archived=false",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "analytics", "project-stats"],
+							"query": [
+								{
+									"key": "include_archived",
+									"value": "false"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Release Analytics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/analytics/release-stats/{{release_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "analytics", "release-stats", "{{release_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Search",
+			"item": [
+				{
+					"name": "Search All Projects",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/search/projects?q=mobile&limit=10&offset=0",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "search", "projects"],
+							"query": [
+								{
+									"key": "q",
+									"value": "mobile"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Search All Todos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/search/todos?q=design&limit=10&offset=0",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "search", "todos"],
+							"query": [
+								{
+									"key": "q",
+									"value": "design"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}

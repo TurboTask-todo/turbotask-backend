@@ -1,0 +1,1013 @@
+{
+	"info": {
+		"_postman_id": "ai-conversation-api-collection",
+		"name": "AI Conversation History API",
+		"description": "Complete API collection for AI Conversation History System with Redis caching, RabbitMQ queuing, and advanced analytics.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "ai-conversation-system"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"description": "Authentication endpoints to get JWT tokens",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePassword123!\",\n  \"username\": \"testuser\",\n  \"first_name\": \"Test\",\n  \"last_name\": \"User\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new user account"
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const responseJson = pm.response.json();",
+									"    if (responseJson.data && responseJson.data.access_token) {",
+									"        pm.environment.set('access_token', responseJson.data.access_token);",
+									"        pm.environment.set('refresh_token', responseJson.data.refresh_token);",
+									"        console.log('Tokens saved to environment variables');",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login user and get JWT tokens"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"me"
+							]
+						},
+						"description": "Get current user profile (test authentication)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AI Conversations",
+			"description": "Manage AI conversation sessions",
+			"item": [
+				{
+					"name": "Create Conversation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const responseJson = pm.response.json();",
+									"    if (responseJson.data && responseJson.data.id) {",
+									"        pm.environment.set('conversation_id', responseJson.data.id);",
+									"        console.log('Conversation ID saved:', responseJson.data.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"session_id\": \"session_{{$randomUUID}}\",\n  \"title\": \"AI Chat Session - {{$randomWords}}\",\n  \"model_name\": \"gpt-4\",\n  \"model_version\": \"2024-01-15\",\n  \"conversation_type\": \"chat\",\n  \"priority\": 5,\n  \"metadata\": {\n    \"source\": \"postman_test\",\n    \"environment\": \"development\"\n  },\n  \"tags\": [\"test\", \"development\", \"postman\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/conversations",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"conversations"
+							]
+						},
+						"description": "Create a new AI conversation session"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Conversations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/conversations?limit=20&offset=0&order_by=created_at&order=desc",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"conversations"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "20",
+									"description": "Number of results per page (1-100)"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Number of results to skip"
+								},
+								{
+									"key": "status",
+									"value": "active",
+									"description": "Filter by status",
+									"disabled": true
+								},
+								{
+									"key": "model",
+									"value": "gpt-4",
+									"description": "Filter by model name",
+									"disabled": true
+								},
+								{
+									"key": "from_date",
+									"value": "2024-01-01",
+									"description": "Filter from date (YYYY-MM-DD)",
+									"disabled": true
+								},
+								{
+									"key": "to_date",
+									"value": "2024-12-31",
+									"description": "Filter to date (YYYY-MM-DD)",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "AI Chat",
+									"description": "Search in titles and content",
+									"disabled": true
+								},
+								{
+									"key": "order_by",
+									"value": "created_at",
+									"description": "Sort field"
+								},
+								{
+									"key": "order",
+									"value": "desc",
+									"description": "Sort order"
+								}
+							]
+						},
+						"description": "Get user's conversations with pagination and filtering"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Conversation Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/conversations/{{conversation_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"conversations",
+								"{{conversation_id}}"
+							]
+						},
+						"description": "Get details of a specific conversation"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Conversation with Interactions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/conversations/{{conversation_id}}/interactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"conversations",
+								"{{conversation_id}}",
+								"interactions"
+							]
+						},
+						"description": "Get conversation with all its interactions and responses"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Conversation",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Updated AI Chat Session - {{$randomWords}}\",\n  \"priority\": 7,\n  \"metadata\": {\n    \"updated_via\": \"postman\",\n    \"last_modified\": \"{{$isoTimestamp}}\"\n  },\n  \"tags\": [\"test\", \"updated\", \"postman\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/conversations/{{conversation_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"conversations",
+								"{{conversation_id}}"
+							]
+						},
+						"description": "Update conversation details"
+					},
+					"response": []
+				},
+				{
+					"name": "Search Conversations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/conversations/search?query=AI Chat&limit=10&offset=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"conversations",
+								"search"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "AI Chat",
+									"description": "Search query"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of results"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Number of results to skip"
+								}
+							]
+						},
+						"description": "Search through conversations using full-text search"
+					},
+					"response": []
+				},
+				{
+					"name": "Archive Conversation",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/conversations/{{conversation_id}}/archive",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"conversations",
+								"{{conversation_id}}",
+								"archive"
+							]
+						},
+						"description": "Archive a conversation (mark as inactive but keep data)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Conversation",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/conversations/{{conversation_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"conversations",
+								"{{conversation_id}}"
+							]
+						},
+						"description": "Soft delete a conversation and all its interactions"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AI Interactions",
+			"description": "Create and manage AI interactions within conversations",
+			"item": [
+				{
+					"name": "Create AI Interaction",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const responseJson = pm.response.json();",
+									"    if (responseJson.data && responseJson.data.interaction && responseJson.data.interaction.id) {",
+									"        pm.environment.set('interaction_id', responseJson.data.interaction.id);",
+									"        console.log('Interaction ID saved:', responseJson.data.interaction.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Request-ID",
+								"value": "{{$randomUUID}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"conversation_id\": \"{{conversation_id}}\",\n  \"user_input\": \"Hello! Can you help me understand how machine learning works?\",\n  \"model_name\": \"gpt-4\",\n  \"model_version\": \"2024-01-15\",\n  \"temperature\": 0.7,\n  \"max_tokens\": 2048,\n  \"top_p\": 0.9,\n  \"frequency_penalty\": 0.0,\n  \"presence_penalty\": 0.0,\n  \"stop_sequences\": [],\n  \"system_prompt\": \"You are a helpful AI assistant focused on providing clear and educational explanations.\",\n  \"priority\": 5,\n  \"enable_compression\": true,\n  \"enable_caching\": true,\n  \"request_metadata\": {\n    \"source\": \"postman_test\",\n    \"user_intent\": \"learning\",\n    \"topic\": \"machine_learning\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/interactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"interactions"
+							]
+						},
+						"description": "Create a new AI interaction (request/response pair)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Follow-up Interaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Request-ID",
+								"value": "{{$randomUUID}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"conversation_id\": \"{{conversation_id}}\",\n  \"user_input\": \"Can you give me a practical example of supervised learning?\",\n  \"model_name\": \"gpt-4\",\n  \"temperature\": 0.7,\n  \"max_tokens\": 1500,\n  \"priority\": 5,\n  \"enable_compression\": true,\n  \"enable_caching\": true,\n  \"request_metadata\": {\n    \"follow_up\": true,\n    \"previous_topic\": \"machine_learning\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/interactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"interactions"
+							]
+						},
+						"description": "Create a follow-up interaction in the same conversation"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Interaction Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/interactions/{{interaction_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"interactions",
+								"{{interaction_id}}"
+							]
+						},
+						"description": "Get details of a specific AI interaction"
+					},
+					"response": []
+				},
+				{
+					"name": "High Priority Interaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"conversation_id\": \"{{conversation_id}}\",\n  \"user_input\": \"This is an urgent question that needs immediate attention!\",\n  \"model_name\": \"gpt-4\",\n  \"temperature\": 0.5,\n  \"max_tokens\": 1024,\n  \"priority\": 9,\n  \"enable_compression\": false,\n  \"enable_caching\": false,\n  \"request_metadata\": {\n    \"urgency\": \"high\",\n    \"priority_reason\": \"time_sensitive\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/interactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"interactions"
+							]
+						},
+						"description": "Create a high-priority interaction that gets processed faster"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AI Feedback",
+			"description": "Submit and retrieve feedback for AI interactions",
+			"item": [
+				{
+					"name": "Submit Interaction Feedback",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"interaction_id\": \"{{interaction_id}}\",\n  \"overall_rating\": 4,\n  \"accuracy_rating\": 5,\n  \"helpfulness_rating\": 4,\n  \"relevance_rating\": 5,\n  \"feedback_type\": \"positive\",\n  \"feedback_text\": \"The AI provided a very clear and detailed explanation of machine learning concepts. The examples were particularly helpful.\",\n  \"improvement_suggestions\": \"Could include more visual examples or diagrams.\",\n  \"tags\": [\"clear\", \"detailed\", \"educational\"],\n  \"session_quality\": 4,\n  \"response_time_satisfaction\": 5\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/feedback",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"feedback"
+							]
+						},
+						"description": "Submit detailed feedback for an AI interaction"
+					},
+					"response": []
+				},
+				{
+					"name": "Submit Negative Feedback",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"interaction_id\": \"{{interaction_id}}\",\n  \"overall_rating\": 2,\n  \"accuracy_rating\": 2,\n  \"helpfulness_rating\": 1,\n  \"relevance_rating\": 3,\n  \"feedback_type\": \"negative\",\n  \"feedback_text\": \"The response was too generic and didn't address my specific question.\",\n  \"improvement_suggestions\": \"Please provide more specific and targeted responses based on the user's exact question.\",\n  \"tags\": [\"generic\", \"unhelpful\"],\n  \"session_quality\": 2,\n  \"response_time_satisfaction\": 4\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/feedback",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"feedback"
+							]
+						},
+						"description": "Submit negative feedback to help improve AI responses"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Interaction Feedback",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/interactions/{{interaction_id}}/feedback",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"interactions",
+								"{{interaction_id}}",
+								"feedback"
+							]
+						},
+						"description": "Get all feedback for a specific interaction"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Analytics & Insights",
+			"description": "Get analytics and insights about AI usage",
+			"item": [
+				{
+					"name": "Get User Analytics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/analytics?from_date=2024-01-01&to_date=2024-12-31&group_by=day",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"analytics"
+							],
+							"query": [
+								{
+									"key": "from_date",
+									"value": "2024-01-01",
+									"description": "Start date (YYYY-MM-DD)"
+								},
+								{
+									"key": "to_date",
+									"value": "2024-12-31",
+									"description": "End date (YYYY-MM-DD)"
+								},
+								{
+									"key": "model",
+									"value": "gpt-4",
+									"description": "Filter by model name",
+									"disabled": true
+								},
+								{
+									"key": "group_by",
+									"value": "day",
+									"description": "Group by period (day, hour, model)"
+								},
+								{
+									"key": "metrics",
+									"value": "cost,tokens,performance",
+									"description": "Specific metrics to include",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get detailed analytics for user's AI interactions"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Summary",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/analytics/summary",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"analytics",
+								"summary"
+							]
+						},
+						"description": "Get a summary of user's AI interaction statistics"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Monthly Analytics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/analytics?from_date={{$currentDate}}&to_date={{$currentDate}}&group_by=hour",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"analytics"
+							],
+							"query": [
+								{
+									"key": "from_date",
+									"value": "{{$currentDate}}",
+									"description": "Current month start"
+								},
+								{
+									"key": "to_date",
+									"value": "{{$currentDate}}",
+									"description": "Current month end"
+								},
+								{
+									"key": "group_by",
+									"value": "hour",
+									"description": "Group by hour for detailed view"
+								}
+							]
+						},
+						"description": "Get current month analytics grouped by hour"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cache Management",
+			"description": "Manage Redis cache for performance optimization",
+			"item": [
+				{
+					"name": "Invalidate User Cache",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/cache/invalidate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"cache",
+								"invalidate"
+							]
+						},
+						"description": "Invalidate all cache entries for the current user"
+					},
+					"response": []
+				},
+				{
+					"name": "Warm User Cache",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/cache/warm",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"cache",
+								"warm"
+							]
+						},
+						"description": "Pre-load frequently accessed data into cache"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "System Health",
+			"description": "Monitor system health and performance",
+			"item": [
+				{
+					"name": "System Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/ai/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"health"
+							]
+						},
+						"description": "Check the health status of AI conversation system components"
+					},
+					"response": []
+				},
+				{
+					"name": "Application Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Check overall application health"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "API Documentation",
+			"description": "Access API documentation",
+			"item": [
+				{
+					"name": "Get API Documentation",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/docs/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"docs",
+								""
+							]
+						},
+						"description": "Get comprehensive API documentation with all available endpoints"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Add current timestamp for debugging",
+					"pm.globals.set('currentTimestamp', new Date().toISOString());"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test to check response time and basic structure",
+					"pm.test('Response time is less than 5000ms', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+					"});",
+					"",
+					"pm.test('Response has JSON body', function () {",
+					"    pm.response.to.have.jsonBody();",
+					"});",
+					"",
+					"if (pm.response.code !== 404) {",
+					"    pm.test('Response has success field', function () {",
+					"        pm.expect(pm.response.json()).to.have.property('success');",
+					"    });",
+					"    ",
+					"    pm.test('Response has timestamp', function () {",
+					"        pm.expect(pm.response.json()).to.have.property('timestamp');",
+					"    });",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
