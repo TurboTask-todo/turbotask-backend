@@ -19,6 +19,7 @@ func SetupTodoRoutes(
 	scheduledService *service.ScheduledTaskService,
 	timeService *service.TimeEntryService,
 	releaseService *service.ReleaseVersionService,
+	globalSearchService *service.GlobalSearchService,
 ) {
 	// Create handlers
 	projectHandler := NewProjectHandler(projectService)
@@ -28,6 +29,7 @@ func SetupTodoRoutes(
 	scheduledHandler := NewScheduledTaskHandler(scheduledService)
 	timeHandler := NewTimeEntryHandler(timeService)
 	releaseHandler := NewReleaseVersionHandler(releaseService)
+	globalSearchHandler := NewGlobalSearchHandler(globalSearchService)
 
 	// Create API v1 group
 	api := router.Group("/api/v1")
@@ -200,8 +202,15 @@ func SetupTodoRoutes(
 	// ========================================
 	search := protected.Group("/search")
 	{
+		// Legacy search endpoints
 		search.GET("/projects", projectHandler.SearchProjects)
 		search.GET("/todos", todoHandler.SearchTodos)
+
+		// New global search endpoints
+		search.GET("", globalSearchHandler.GlobalSearch)                  // Global search across all types
+		search.GET("/quick", globalSearchHandler.QuickSearch)             // Quick search for autocomplete
+		search.GET("/suggestions", globalSearchHandler.SearchSuggestions) // Search suggestions
+		search.GET("/history", globalSearchHandler.SearchHistory)         // Search history
 	}
 }
 
@@ -223,18 +232,20 @@ func SetupTodoAPI(
 		services.ScheduledService,
 		services.TimeService,
 		services.ReleaseService,
+		services.GlobalSearchService,
 	)
 }
 
 // TodoServices groups all todo-related services
 type TodoServices struct {
-	ProjectService   *service.ProjectService
-	TodoService      *service.TodoService
-	SubtaskService   *service.SubtaskService
-	NoteService      *service.NoteService
-	ScheduledService *service.ScheduledTaskService
-	TimeService      *service.TimeEntryService
-	ReleaseService   *service.ReleaseVersionService
+	ProjectService      *service.ProjectService
+	TodoService         *service.TodoService
+	SubtaskService      *service.SubtaskService
+	NoteService         *service.NoteService
+	ScheduledService    *service.ScheduledTaskService
+	TimeService         *service.TimeEntryService
+	ReleaseService      *service.ReleaseVersionService
+	GlobalSearchService *service.GlobalSearchService
 }
 
 // RouteInfo represents API route information for documentation
@@ -332,7 +343,11 @@ func GetTodoAPIRoutes() []RouteInfo {
 		{Method: "GET", Path: "/api/v1/analytics/release-stats/:id", Description: "Get release statistics", Auth: true},
 
 		// Search
-		{Method: "GET", Path: "/api/v1/search/projects", Description: "Search projects", Auth: true},
-		{Method: "GET", Path: "/api/v1/search/todos", Description: "Search todos", Auth: true},
+		{Method: "GET", Path: "/api/v1/search", Description: "Global search across projects and tasks", Auth: true},
+		{Method: "GET", Path: "/api/v1/search/quick", Description: "Quick search for autocomplete", Auth: true},
+		{Method: "GET", Path: "/api/v1/search/suggestions", Description: "Get search suggestions", Auth: true},
+		{Method: "GET", Path: "/api/v1/search/history", Description: "Get search history", Auth: true},
+		{Method: "GET", Path: "/api/v1/search/projects", Description: "Search projects (legacy)", Auth: true},
+		{Method: "GET", Path: "/api/v1/search/todos", Description: "Search todos (legacy)", Auth: true},
 	}
 }

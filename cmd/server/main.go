@@ -208,6 +208,9 @@ func main() {
 	// TodoService needs to be initialized after projectService since it depends on it
 	todoService := service.NewTodoService(todoRepo, projectRepo, subtaskRepo, noteRepo, timeEntryRepo, projectService, redisClient)
 
+	// Initialize global search service
+	globalSearchService := service.NewGlobalSearchService(projectService, todoService)
+
 	// Initialize WebSocket-enabled services
 	wsHandler := handler.NewWebSocketHandler(wsHub, jwtManager)
 
@@ -227,6 +230,7 @@ func main() {
 
 	// Initialize Todo-related handlers
 	projectHandler := handler.NewProjectHandler(projectService)
+	globalSearchHandler := handler.NewGlobalSearchHandler(globalSearchService)
 	releaseVersionHandler := handler.NewReleaseVersionHandler(releaseVersionService)
 	todoHandler := handler.NewTodoHandler(todoService)
 	subtaskHandler := handler.NewSubtaskHandler(subtaskService)
@@ -260,6 +264,7 @@ func main() {
 		aiConversationHandler,
 		aiHandler,
 		projectHandler,
+		globalSearchHandler,
 		releaseVersionHandler,
 		todoHandler,
 		subtaskHandler,
@@ -334,6 +339,7 @@ func setupRouter(
 	aiConversationHandler *handler.AIConversationHandler,
 	aiHandler *handler.AIHandler,
 	projectHandler *handler.ProjectHandler,
+	globalSearchHandler *handler.GlobalSearchHandler,
 	releaseVersionHandler *handler.ReleaseVersionHandler,
 	todoHandler *handler.TodoHandler,
 	subtaskHandler *handler.SubtaskHandler,
@@ -762,12 +768,21 @@ func setupRouter(
 			analytics.GET("/release-stats/:id", releaseVersionHandler.GetReleaseStats)
 		}
 
-		// SEARCH ROUTES (Consolidated)
-		search := todoAppGroup.Group("/search")
-		{
-			search.GET("/projects", projectHandler.SearchProjects)
-			search.GET("/todos", todoHandler.SearchTodos)
-		}
+	}
+
+	// Global Search routes - All require authentication
+	searchGroup := v1.Group("/search")
+	searchGroup.Use(authMiddleware.RequireAuth())
+	{
+		// Global search endpoints
+		searchGroup.GET("", globalSearchHandler.GlobalSearch)
+		searchGroup.GET("/quick", globalSearchHandler.QuickSearch)
+		searchGroup.GET("/suggestions", globalSearchHandler.SearchSuggestions)
+		searchGroup.GET("/history", globalSearchHandler.SearchHistory)
+
+		// Legacy search endpoints (keep for backward compatibility)
+		searchGroup.GET("/projects", projectHandler.SearchProjects)
+		searchGroup.GET("/todos", todoHandler.SearchTodos)
 	}
 
 	// Reports routes - All require authentication
