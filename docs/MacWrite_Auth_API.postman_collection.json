@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "macwrite-auth-api-collection",
+		"_postman_id": "quantumtask-auth-api-collection",
 		"name": "MacWrite Auth API",
 		"description": "Complete authentication API for MacWrite application with user management, JWT tokens, OAuth integration, and security features.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "macwrite-auth-api"
+		"_exporter_id": "quantumtask-auth-api"
 	},
 	"item": [
 		{

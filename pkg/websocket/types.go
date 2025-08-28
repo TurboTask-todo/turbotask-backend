@@ -1,7 +1,7 @@
 package websocket
 
 import (
-	"macwrite-auth-api/pkg/redis"
+	"quantumtask-auth-api/pkg/redis"
 	"sync"
 	"time"
 

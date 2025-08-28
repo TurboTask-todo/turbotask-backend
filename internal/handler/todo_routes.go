@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"macwrite-auth-api/internal/service"
+	"quantumtask-auth-api/internal/service"
 
 	"github.com/gin-gonic/gin"
 )

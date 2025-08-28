@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"macwrite-auth-api/internal/config"
-	"macwrite-auth-api/internal/models"
+	"quantumtask-auth-api/internal/config"
+	"quantumtask-auth-api/internal/models"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"

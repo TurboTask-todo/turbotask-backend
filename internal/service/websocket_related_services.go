@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"macwrite-auth-api/internal/models"
-	"macwrite-auth-api/pkg/websocket"
+	"quantumtask-auth-api/internal/models"
+	"quantumtask-auth-api/pkg/websocket"
 
 	"github.com/google/uuid"
 )

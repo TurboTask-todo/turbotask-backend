@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"time"
 
-	"macwrite-auth-api/internal/models"
-	"macwrite-auth-api/internal/service"
+	"quantumtask-auth-api/internal/models"
+	"quantumtask-auth-api/internal/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

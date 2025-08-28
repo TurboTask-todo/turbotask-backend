@@ -9,16 +9,17 @@ import (
 	"strings"
 	"time"
 
-	"macwrite-auth-api/internal/models"
-	"macwrite-auth-api/internal/repository"
-	"macwrite-auth-api/pkg/email"
+	"quantumtask-auth-api/internal/models"
+	"quantumtask-auth-api/internal/repository"
+	"quantumtask-auth-api/pkg/email"
 )
 
 // OTPService handles OTP business logic
 type OTPService struct {
-	otpRepo     *repository.OTPRepository
-	userRepo    *repository.UserRepository
-	emailClient *email.Client
+	otpRepo      *repository.OTPRepository
+	userRepo     *repository.UserRepository
+	emailClient  *email.Client
+	emailService *EmailService
 }
 
 // NewOTPService creates a new OTP service
@@ -26,11 +27,13 @@ func NewOTPService(
 	otpRepo *repository.OTPRepository,
 	userRepo *repository.UserRepository,
 	emailClient *email.Client,
+	emailService *EmailService,
 ) *OTPService {
 	return &OTPService{
-		otpRepo:     otpRepo,
-		userRepo:    userRepo,
-		emailClient: emailClient,
+		otpRepo:      otpRepo,
+		userRepo:     userRepo,
+		emailClient:  emailClient,
+		emailService: emailService,
 	}
 }
 
@@ -78,9 +81,23 @@ func (s *OTPService) SendOTP(ctx context.Context, email string, purpose models.O
 		return nil, fmt.Errorf("failed to create OTP record: %w", err)
 	}
 
-	// Send email
-	if err := s.emailClient.SendOTP(email, code, purpose, "10 minutes"); err != nil {
-		return nil, fmt.Errorf("failed to send OTP email: %w", err)
+	// Queue email for background processing
+	if s.emailService != nil {
+		// Use background email processing for better performance
+		if err := s.emailService.QueueOTPEmail(ctx, email, code, purpose, "10 minutes"); err != nil {
+			// Fallback to synchronous email sending if queue fails
+			fmt.Printf("⚠️  Failed to queue email, falling back to synchronous sending: %v\n", err)
+			if err := s.emailClient.SendOTP(email, code, purpose, "10 minutes"); err != nil {
+				return nil, fmt.Errorf("failed to send OTP email: %w", err)
+			}
+		} else {
+			fmt.Printf("✅ OTP email queued successfully for background processing: %s\n", email)
+		}
+	} else {
+		// Fallback to synchronous email sending if email service is not available
+		if err := s.emailClient.SendOTP(email, code, purpose, "10 minutes"); err != nil {
+			return nil, fmt.Errorf("failed to send OTP email: %w", err)
+		}
 	}
 
 	return otp, nil

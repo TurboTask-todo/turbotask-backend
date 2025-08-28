@@ -9,12 +9,12 @@ import (
 	"strconv"
 	"time"
 
-	"macwrite-auth-api/internal/config"
-	"macwrite-auth-api/internal/entity"
-	"macwrite-auth-api/internal/repository"
-	"macwrite-auth-api/pkg/compression"
-	"macwrite-auth-api/pkg/queue"
-	"macwrite-auth-api/pkg/redis"
+	"quantumtask-auth-api/internal/config"
+	"quantumtask-auth-api/internal/entity"
+	"quantumtask-auth-api/internal/repository"
+	"quantumtask-auth-api/pkg/compression"
+	"quantumtask-auth-api/pkg/queue"
+	"quantumtask-auth-api/pkg/redis"
 
 	"github.com/google/uuid"
 )

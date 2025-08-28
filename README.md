@@ -1,4 +1,4 @@
-# MacWrite Authentication API
+# QuantumTask Authentication API
 
 A high-performance, scalable, and professionally structured Golang authentication API with PostgreSQL database, featuring JWT tokens, OAuth integration, comprehensive security measures, and production-ready architecture.
 
@@ -85,10 +85,10 @@ go mod download
 
 ```sql
 -- Create database
-CREATE DATABASE macwrite_auth;
+CREATE DATABASE quantumtask_auth;
 
 -- Run the provided schema
-psql -U postgres -d macwrite_auth -f Query/auth.sql
+psql -U postgres -d quantumtask_auth -f Query/auth.sql
 ```
 
 ### 4. Environment Configuration
@@ -109,7 +109,7 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=your_password
-DB_NAME=macwrite_auth
+DB_NAME=quantumtask_auth
 
 # JWT Secret (generate a secure random string)
 JWT_SECRET=your-super-secret-jwt-key-change-in-production
@@ -129,8 +129,8 @@ ENCRYPTION_KEY=your-32-character-encryption-key
 go run cmd/server/main.go
 
 # Build and run
-go build -o macwrite-auth-api cmd/server/main.go
-./macwrite-auth-api
+go build -o quantumtask-auth-api cmd/server/main.go
+./quantumtask-auth-api
 ```
 
 Server starts on `http://localhost:8080`
@@ -466,7 +466,7 @@ hey -n 1000 -c 10 http://localhost:8080/api/v1/auth/oauth/providers
 ### Project Structure
 
 ```
-macwrite-auth-api/
+quantumtask-auth-api/
 ├── cmd/server/main.go          # Application entry point
 ├── internal/                   # Private application code
 │   ├── config/                 # Configuration management
@@ -546,7 +546,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 sudo systemctl status postgresql
 
 # Verify database exists
-psql -U postgres -l | grep macwrite_auth
+psql -U postgres -l | grep quantumtask_auth
 ```
 
 **JWT Token Issues**
@@ -566,7 +566,7 @@ psql -U postgres -l | grep macwrite_auth
 - 📖 Check this README first
 - 🐛 Report bugs via GitHub Issues
 - 💬 Join our community discussions
-- 📧 Email support: support@macwrite.com
+- 📧 Email support: support@quantumtask.com
 
 ---
 

@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"time"
 
-	"macwrite-auth-api/internal/middleware"
-	"macwrite-auth-api/internal/service"
+	"quantumtask-auth-api/internal/middleware"
+	"quantumtask-auth-api/internal/service"
 
 	"github.com/gin-gonic/gin"
 )

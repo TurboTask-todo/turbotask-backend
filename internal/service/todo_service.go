@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"macwrite-auth-api/internal/models"
-	"macwrite-auth-api/internal/repository"
-	"macwrite-auth-api/pkg/redis"
+	"quantumtask-auth-api/internal/models"
+	"quantumtask-auth-api/internal/repository"
+	"quantumtask-auth-api/pkg/redis"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -176,6 +176,8 @@ func (s *TodoService) GetTodo(ctx context.Context, todoID, userID uuid.UUID, inc
 	if todoData, err := json.Marshal(todo); err == nil {
 		s.redisClient.Set(ctx, cacheKey, todoData, todoCacheTTL)
 	}
+
+	fmt.Println("todo", todo)
 
 	return todo, nil
 }

@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"time"
 
-	"macwrite-auth-api/internal/models"
-	"macwrite-auth-api/internal/repository"
-	"macwrite-auth-api/pkg/ai"
-	"macwrite-auth-api/pkg/queue"
-	"macwrite-auth-api/pkg/redis"
-	"macwrite-auth-api/pkg/websocket"
+	"quantumtask-auth-api/internal/models"
+	"quantumtask-auth-api/internal/repository"
+	"quantumtask-auth-api/pkg/ai"
+	"quantumtask-auth-api/pkg/queue"
+	"quantumtask-auth-api/pkg/redis"
+	"quantumtask-auth-api/pkg/websocket"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"

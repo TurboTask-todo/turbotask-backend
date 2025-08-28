@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"macwrite-auth-api/internal/models"
+	"quantumtask-auth-api/internal/models"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/time/rate"

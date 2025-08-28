@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"macwrite-auth-api/internal/config"
+	"quantumtask-auth-api/internal/config"
 
 	track "github.com/middleware-labs/golang-apm/tracker"
 )

@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"macwrite-auth-api/internal/models"
-	"macwrite-auth-api/pkg/auth"
+	"quantumtask-auth-api/internal/models"
+	"quantumtask-auth-api/pkg/auth"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
