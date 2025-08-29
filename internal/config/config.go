@@ -209,11 +209,11 @@ func Load() (*Config, error) {
 	enableTracing, _ := strconv.ParseBool(getEnv("DB_POOL_ENABLE_TRACING", "false"))
 
 	config.Database = DatabaseConfig{
-		Host:     getEnv("DB_HOST", "localhost"),
+		Host:     getEnv("DB_HOST", "ep-nameless-morning-adw2ijdl-pooler.c-2.us-east-1.aws.neon.tech"),
 		Port:     dbPort,
-		User:     getEnv("DB_USER", "postgres"),
-		Password: getEnv("DB_PASSWORD", "88835"),
-		Name:     getEnv("DB_NAME", "postgres"),
+		User:     getEnv("DB_USER", "neondb_owner"),
+		Password: getEnv("DB_PASSWORD", "npg_w5L4XCBkqDOJ"),
+		Name:     getEnv("DB_NAME", "neondb"),
 		SSLMode:  getEnv("DB_SSL_MODE", "disable"),
 		Pool: DatabasePoolConfig{
 			MaxConns:               int32(maxConns),

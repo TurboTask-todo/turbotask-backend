@@ -693,9 +693,9 @@ func setupRouter(
 			todos.POST("/bulk-move", todoHandler.BulkMoveTodos)
 
 			// Checklist specific operations
-			todos.GET("/checklist", todoHandler.GetChecklistTodos)
-			todos.POST("/:id/toggle-completion", todoHandler.ToggleTodoCompletion)
-			todos.POST("/checklist/bulk-toggle", todoHandler.BulkToggleCompletion)
+			// todos.GET("/checklist", todoHandler.GetChecklistTodos)
+			// todos.POST("/:id/toggle-completion", todoHandler.ToggleTodoCompletion)
+			// todos.POST("/checklist/bulk-toggle", todoHandler.BulkToggleCompletion)
 
 			// Subtask routes nested under todos
 			todos.POST("/:id/subtasks", subtaskHandler.CreateSubtask)
@@ -898,9 +898,9 @@ func setupRouter(
 				wsTodos.POST("/bulk-move", wsTodoHandler.BulkMoveTodos)
 
 				// Checklist operations with real-time updates
-				wsTodos.GET("/checklist", wsTodoHandler.GetChecklistTodos)
-				wsTodos.POST("/:id/toggle-completion", wsTodoHandler.ToggleTodoCompletion)
-				wsTodos.POST("/checklist/bulk-toggle", wsTodoHandler.BulkToggleCompletion)
+				// wsTodos.GET("/checklist", wsTodoHandler.GetChecklistTodos)
+				// wsTodos.POST("/:id/toggle-completion", wsTodoHandler.ToggleTodoCompletion)
+				// wsTodos.POST("/checklist/bulk-toggle", wsTodoHandler.BulkToggleCompletion)
 
 				// Subtask operations with real-time updates
 				wsTodos.POST("/:id/subtasks", wsSubtaskHandler.CreateSubtask)
