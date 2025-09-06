@@ -355,7 +355,7 @@ func Load() (*Config, error) {
 	}
 
 	config.Queue = QueueConfig{
-		URL:          getEnv("RABBITMQ_URL", "amqps://turbotask:turbotask@lion.rmq.cloudamqp.com/zdbdgwix"), //amqp://guest:guest@localhost:5672/
+		URL:          getEnv("RABBITMQ_URL", "amqp://guest:guest@rabbitmq-jbos.onrender.com:5672/"),
 		ExchangeName: getEnv("QUEUE_EXCHANGE_NAME", "ai.enhancement.direct"),
 		MaxRetries:   queueMaxRetries,
 	}

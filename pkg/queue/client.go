@@ -38,9 +38,14 @@ type rabbitMQClient struct {
 	url     string
 }
 
-// NewRabbitMQClient creates a new RabbitMQ client
+// NewRabbitMQClient creates a new RabbitMQ client with timeout
 func NewRabbitMQClient(url string) (Client, error) {
-	conn, err := amqp.Dial(url)
+	// Add connection timeout to prevent hanging
+	config := amqp.Config{
+		Dial: amqp.DefaultDial(10 * time.Second), // 10 second timeout
+	}
+
+	conn, err := amqp.DialConfig(url, config)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to RabbitMQ: %w", err)
 	}
@@ -62,7 +67,10 @@ func NewRabbitMQClient(url string) (Client, error) {
 func (c *rabbitMQClient) ensureConnection() error {
 	if c.conn == nil || c.conn.IsClosed() {
 		fmt.Printf("🔄 Reconnecting to RabbitMQ...\n")
-		conn, err := amqp.Dial(c.url)
+		config := amqp.Config{
+			Dial: amqp.DefaultDial(10 * time.Second), // 10 second timeout
+		}
+		conn, err := amqp.DialConfig(c.url, config)
 		if err != nil {
 			return fmt.Errorf("failed to reconnect to RabbitMQ: %w", err)
 		}

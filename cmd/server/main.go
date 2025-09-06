@@ -107,24 +107,31 @@ func main() {
 
 	// Initialize RabbitMQ client for AI enhancement queue
 	amqpURL := cfg.Queue.URL
-	// Fallback to default AMQP URL if configuration is missing or invalid
-	if !strings.HasPrefix(amqpURL, "amqp://") {
-		amqpURL = "amqp://guest:guest@localhost:5672/"
+
+	// Validate URL format, use deployed instance as default
+	if !strings.HasPrefix(amqpURL, "amqp://") && !strings.HasPrefix(amqpURL, "amqps://") {
+		// Invalid URL format, use deployed RabbitMQ instance
+		amqpURL = "amqp://guest:guest@rabbitmq-jbos.onrender.com:5672/"
 	}
 
 	fmt.Printf("🐰 Initializing RabbitMQ client with URL: %s\n", amqpURL)
+
+	// Try to initialize RabbitMQ with timeout handling
 	queueClient, err := queue.NewRabbitMQClient(amqpURL)
 	if err != nil {
-		log.Fatalf("Failed to initialize RabbitMQ client: %v", err)
-	}
-
-	// Test RabbitMQ connection
-	if err := queueClient.Ping(context.Background()); err != nil {
-		log.Printf("⚠️  RabbitMQ connection test failed: %v", err)
+		log.Printf("⚠️  Failed to initialize RabbitMQ client: %v", err)
 		log.Printf("🔄 Falling back to mock client for development")
 		queueClient = queue.NewMockClient()
 	} else {
-		fmt.Printf("✅ RabbitMQ connection successful\n")
+		// Test RabbitMQ connection
+		if err := queueClient.Ping(context.Background()); err != nil {
+			log.Printf("⚠️  RabbitMQ connection test failed: %v", err)
+			log.Printf("🔄 Falling back to mock client for development")
+			queueClient.Close() // Close the failed connection
+			queueClient = queue.NewMockClient()
+		} else {
+			fmt.Printf("✅ RabbitMQ connection successful\n")
+		}
 	}
 
 	compressor := compression.NewCompressor()
