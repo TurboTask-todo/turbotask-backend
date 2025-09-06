@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"macwrite-auth-api/internal/config"
+	"quantumtask-auth-api/internal/config"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // PostgreSQL driver for backward compatibility

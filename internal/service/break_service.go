@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"macwrite-auth-api/internal/models"
-	"macwrite-auth-api/internal/repository"
+	"quantumtask-auth-api/internal/models"
+	"quantumtask-auth-api/internal/repository"
 
 	"github.com/google/uuid"
 )

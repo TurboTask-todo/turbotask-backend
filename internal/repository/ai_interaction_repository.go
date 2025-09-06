@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"macwrite-auth-api/internal/database"
+	"quantumtask-auth-api/internal/database"
 )
 
 // AIInteraction represents an AI API interaction record

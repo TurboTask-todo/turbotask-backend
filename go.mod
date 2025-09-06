@@ -1,4 +1,4 @@
-module macwrite-auth-api
+module quantumtask-auth-api
 
 go 1.23.5
 

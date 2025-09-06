@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"macwrite-auth-api/internal/database"
+	"quantumtask-auth-api/internal/database"
 )
 
 // AISuggestion represents an AI suggestion record

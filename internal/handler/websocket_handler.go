@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"macwrite-auth-api/pkg/auth"
-	"macwrite-auth-api/pkg/websocket"
+	"quantumtask-auth-api/pkg/auth"
+	"quantumtask-auth-api/pkg/websocket"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

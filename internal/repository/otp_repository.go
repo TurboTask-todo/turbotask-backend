@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"macwrite-auth-api/internal/models"
+	"quantumtask-auth-api/internal/models"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"

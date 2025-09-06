@@ -99,25 +99,40 @@ func (c *rabbitMQClient) Publish(ctx context.Context, queueName string, payload 
 	}
 	fmt.Printf("📄 Message body size: %d bytes\n", len(body))
 
-	// Ensure queue exists with consistent parameters (must match CreateQueue)
-	fmt.Printf("📥 Declaring queue: %s\n", queueName)
-	_, err = c.channel.QueueDeclare(
+	// Try to declare queue with passive mode first to check if it exists
+	fmt.Printf("📥 Checking if queue exists: %s\n", queueName)
+	_, err = c.channel.QueueDeclarePassive(
 		queueName,
 		true,  // durable
 		false, // delete when unused
 		false, // exclusive
 		false, // no-wait
-		amqp.Table{
-			"x-max-priority": 10,
-			"x-message-ttl":  int64(24 * 60 * 60 * 1000), // 24 hours in milliseconds
-			"x-max-length":   1000,                       // Max queue length (must match CreateQueue)
-		},
+		nil,   // args
 	)
+
 	if err != nil {
-		fmt.Printf("❌ Failed to declare queue %s: %v\n", queueName, err)
-		return fmt.Errorf("failed to declare queue: %w", err)
+		// Queue doesn't exist, declare it with our parameters
+		fmt.Printf("📥 Declaring new queue: %s\n", queueName)
+		_, err = c.channel.QueueDeclare(
+			queueName,
+			true,  // durable
+			false, // delete when unused
+			false, // exclusive
+			false, // no-wait
+			amqp.Table{
+				"x-max-priority": 10,
+				"x-message-ttl":  int64(24 * 60 * 60 * 1000), // 24 hours in milliseconds
+				"x-max-length":   10000,                      // Max queue length (must match CreateQueue)
+			},
+		)
+		if err != nil {
+			fmt.Printf("❌ Failed to declare queue %s: %v\n", queueName, err)
+			return fmt.Errorf("failed to declare queue: %w", err)
+		}
+		fmt.Printf("✅ Queue %s declared successfully\n", queueName)
+	} else {
+		fmt.Printf("✅ Queue %s already exists\n", queueName)
 	}
-	fmt.Printf("✅ Queue %s declared successfully with TTL\n", queueName)
 
 	messageID := generateMessageID()
 	fmt.Printf("🆔 Generated message ID: %s\n", messageID)
@@ -153,25 +168,40 @@ func (c *rabbitMQClient) Consume(ctx context.Context, queueName string, handler 
 		return fmt.Errorf("failed to ensure connection: %w", err)
 	}
 
-	// Ensure queue exists with consistent parameters (must match CreateQueue)
-	fmt.Printf("📥 Declaring queue for consumption: %s\n", queueName)
-	_, err := c.channel.QueueDeclare(
+	// Try to declare queue with passive mode first to check if it exists
+	fmt.Printf("📥 Checking if queue exists for consumption: %s\n", queueName)
+	_, err := c.channel.QueueDeclarePassive(
 		queueName,
 		true,  // durable
 		false, // delete when unused
 		false, // exclusive
 		false, // no-wait
-		amqp.Table{
-			"x-max-priority": 10,
-			"x-message-ttl":  int64(24 * 60 * 60 * 1000), // 24 hours in milliseconds
-			"x-max-length":   1000,                       // Max queue length (must match CreateQueue)
-		},
+		nil,   // args
 	)
+
 	if err != nil {
-		fmt.Printf("❌ Failed to declare queue %s for consumption: %v\n", queueName, err)
-		return fmt.Errorf("failed to declare queue: %w", err)
+		// Queue doesn't exist, declare it with our parameters
+		fmt.Printf("📥 Declaring new queue for consumption: %s\n", queueName)
+		_, err = c.channel.QueueDeclare(
+			queueName,
+			true,  // durable
+			false, // delete when unused
+			false, // exclusive
+			false, // no-wait
+			amqp.Table{
+				"x-max-priority": 10,
+				"x-message-ttl":  int64(24 * 60 * 60 * 1000), // 24 hours in milliseconds
+				"x-max-length":   10000,                      // Max queue length (must match CreateQueue)
+			},
+		)
+		if err != nil {
+			fmt.Printf("❌ Failed to declare queue %s for consumption: %v\n", queueName, err)
+			return fmt.Errorf("failed to declare queue: %w", err)
+		}
+		fmt.Printf("✅ Queue %s declared successfully for consumption\n", queueName)
+	} else {
+		fmt.Printf("✅ Queue %s already exists for consumption\n", queueName)
 	}
-	fmt.Printf("✅ Queue %s declared successfully for consumption with TTL\n", queueName)
 
 	// Set QoS
 	err = c.channel.Qos(

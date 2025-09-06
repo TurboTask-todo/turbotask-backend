@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
-	"macwrite-auth-api/internal/models"
-	"macwrite-auth-api/internal/service"
-	"macwrite-auth-api/pkg/oauth"
+	"quantumtask-auth-api/internal/models"
+	"quantumtask-auth-api/internal/service"
+	"quantumtask-auth-api/pkg/oauth"
 
 	"github.com/gin-gonic/gin"
 )

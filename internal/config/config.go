@@ -209,12 +209,12 @@ func Load() (*Config, error) {
 	enableTracing, _ := strconv.ParseBool(getEnv("DB_POOL_ENABLE_TRACING", "false"))
 
 	config.Database = DatabaseConfig{
-		Host:     getEnv("DB_HOST", "localhost"),
+		Host:     getEnv("DB_HOST", "ep-nameless-morning-adw2ijdl-pooler.c-2.us-east-1.aws.neon.tech"),
 		Port:     dbPort,
-		User:     getEnv("DB_USER", "postgres"),
-		Password: getEnv("DB_PASSWORD", "88835"),
-		Name:     getEnv("DB_NAME", "postgres"),
-		SSLMode:  getEnv("DB_SSL_MODE", "disable"),
+		User:     getEnv("DB_USER", "neondb_owner"),
+		Password: getEnv("DB_PASSWORD", "npg_w5L4XCBkqDOJ"),
+		Name:     getEnv("DB_NAME", "neondb"),
+		SSLMode:  getEnv("DB_SSL_MODE", "require"),
 		Pool: DatabasePoolConfig{
 			MaxConns:               int32(maxConns),
 			MinConns:               int32(minConns),
@@ -355,7 +355,7 @@ func Load() (*Config, error) {
 	}
 
 	config.Queue = QueueConfig{
-		URL:          getEnv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/"),
+		URL:          getEnv("RABBITMQ_URL", "amqps://turbotask:turbotask@lion.rmq.cloudamqp.com/zdbdgwix"), //amqp://guest:guest@localhost:5672/
 		ExchangeName: getEnv("QUEUE_EXCHANGE_NAME", "ai.enhancement.direct"),
 		MaxRetries:   queueMaxRetries,
 	}

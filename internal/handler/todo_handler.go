@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"strings"
 
-	"macwrite-auth-api/internal/middleware"
-	"macwrite-auth-api/internal/models"
-	"macwrite-auth-api/internal/repository"
-	"macwrite-auth-api/internal/service"
+	"quantumtask-auth-api/internal/middleware"
+	"quantumtask-auth-api/internal/models"
+	"quantumtask-auth-api/internal/repository"
+	"quantumtask-auth-api/internal/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -975,6 +975,8 @@ func (h *TodoHandler) MoveTodoToColumn(c *gin.Context) {
 
 	// Move todo
 	response, err := h.todoService.MoveTodoToColumn(c.Request.Context(), userID, &req)
+	fmt.Println("response", response)
+	fmt.Println("err", err)
 	if err != nil {
 		if err == repository.ErrTodoNotFound {
 			c.JSON(http.StatusNotFound, models.NewErrorResponse(

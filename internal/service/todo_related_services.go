@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"macwrite-auth-api/internal/models"
-	"macwrite-auth-api/internal/repository"
-	"macwrite-auth-api/pkg/redis"
+	"quantumtask-auth-api/internal/models"
+	"quantumtask-auth-api/internal/repository"
+	"quantumtask-auth-api/pkg/redis"
 
 	"github.com/google/uuid"
 )

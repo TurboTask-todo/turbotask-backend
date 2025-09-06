@@ -72,7 +72,7 @@ The middleware.io APM tracking is automatically initialized when the application
 If you need to manually work with the middleware.io client:
 
 ```go
-import apmclient "macwrite-auth-api/pkg/middleware"
+import apmclient "quantumtask-auth-api/pkg/middleware"
 
 // Create a new client
 client := apmclient.NewClient(&cfg.Middleware)

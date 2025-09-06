@@ -11,22 +11,22 @@ import (
 	"syscall"
 	"time"
 
-	"macwrite-auth-api/internal/config"
-	"macwrite-auth-api/internal/database"
-	"macwrite-auth-api/internal/handler"
-	"macwrite-auth-api/internal/middleware"
-	"macwrite-auth-api/internal/repository"
-	"macwrite-auth-api/internal/service"
-	"macwrite-auth-api/pkg/ai"
-	"macwrite-auth-api/pkg/auth"
-	"macwrite-auth-api/pkg/compression"
-	"macwrite-auth-api/pkg/email"
-	apmclient "macwrite-auth-api/pkg/middleware"
-	"macwrite-auth-api/pkg/oauth"
-	"macwrite-auth-api/pkg/queue"
-	"macwrite-auth-api/pkg/redis"
-	"macwrite-auth-api/pkg/validation"
-	"macwrite-auth-api/pkg/websocket"
+	"quantumtask-auth-api/internal/config"
+	"quantumtask-auth-api/internal/database"
+	"quantumtask-auth-api/internal/handler"
+	"quantumtask-auth-api/internal/middleware"
+	"quantumtask-auth-api/internal/repository"
+	"quantumtask-auth-api/internal/service"
+	"quantumtask-auth-api/pkg/ai"
+	"quantumtask-auth-api/pkg/auth"
+	"quantumtask-auth-api/pkg/compression"
+	"quantumtask-auth-api/pkg/email"
+	apmclient "quantumtask-auth-api/pkg/middleware"
+	"quantumtask-auth-api/pkg/oauth"
+	"quantumtask-auth-api/pkg/queue"
+	"quantumtask-auth-api/pkg/redis"
+	"quantumtask-auth-api/pkg/validation"
+	"quantumtask-auth-api/pkg/websocket"
 
 	"github.com/gin-gonic/gin"
 )
@@ -150,6 +150,9 @@ func main() {
 	// Initialize email client
 	emailClient := email.NewClient(cfg.Email)
 
+	// Initialize email service for background email processing
+	emailService := service.NewEmailService(emailClient, queueClient)
+
 	// Initialize and start AI enhancement consumer with dedicated context
 	fmt.Printf("🚀 Initializing AI Enhancement Consumer...\n")
 	aiEnhancementConsumer := service.NewAIEnhancementConsumer(aiService, queueClient, wsHub)
@@ -173,6 +176,26 @@ func main() {
 
 	fmt.Println("AI enhancement consumer started")
 
+	// Initialize and start Email consumer
+	fmt.Printf("📧 Initializing Email Consumer...\n")
+	emailConsumer := service.NewEmailConsumer(emailService, queueClient)
+
+	go func() {
+		fmt.Printf("🔄 Starting Email Consumer in goroutine...\n")
+		for {
+			err := emailConsumer.StartConsumer(consumerCtx)
+			if err != nil {
+				fmt.Printf("❌ Email consumer failed: %v\n", err)
+				fmt.Printf("🔄 Retrying email consumer in 5 seconds...\n")
+				time.Sleep(5 * time.Second)
+				continue
+			}
+			break
+		}
+	}()
+
+	fmt.Println("Email consumer started")
+
 	// Initialize services
 	authService := service.NewAuthService(
 		userRepo,
@@ -194,8 +217,8 @@ func main() {
 	// Initialize user service
 	userService := service.NewUserService(userRepo)
 
-	// Initialize OTP service
-	otpService := service.NewOTPService(otpRepo, userRepo, emailClient)
+	// Initialize OTP service with background email processing
+	otpService := service.NewOTPService(otpRepo, userRepo, emailClient, emailService)
 
 	// Initialize Todo-related services
 	projectService := service.NewProjectService(projectRepo, todoRepo, redisClient)
@@ -207,6 +230,9 @@ func main() {
 
 	// TodoService needs to be initialized after projectService since it depends on it
 	todoService := service.NewTodoService(todoRepo, projectRepo, subtaskRepo, noteRepo, timeEntryRepo, projectService, redisClient)
+
+	// Initialize global search service
+	globalSearchService := service.NewGlobalSearchService(projectService, todoService)
 
 	// Initialize WebSocket-enabled services
 	wsHandler := handler.NewWebSocketHandler(wsHub, jwtManager)
@@ -227,6 +253,7 @@ func main() {
 
 	// Initialize Todo-related handlers
 	projectHandler := handler.NewProjectHandler(projectService)
+	globalSearchHandler := handler.NewGlobalSearchHandler(globalSearchService)
 	releaseVersionHandler := handler.NewReleaseVersionHandler(releaseVersionService)
 	todoHandler := handler.NewTodoHandler(todoService)
 	subtaskHandler := handler.NewSubtaskHandler(subtaskService)
@@ -260,6 +287,7 @@ func main() {
 		aiConversationHandler,
 		aiHandler,
 		projectHandler,
+		globalSearchHandler,
 		releaseVersionHandler,
 		todoHandler,
 		subtaskHandler,
@@ -334,6 +362,7 @@ func setupRouter(
 	aiConversationHandler *handler.AIConversationHandler,
 	aiHandler *handler.AIHandler,
 	projectHandler *handler.ProjectHandler,
+	globalSearchHandler *handler.GlobalSearchHandler,
 	releaseVersionHandler *handler.ReleaseVersionHandler,
 	todoHandler *handler.TodoHandler,
 	subtaskHandler *handler.SubtaskHandler,
@@ -663,6 +692,11 @@ func setupRouter(
 			todos.POST("/reorder", todoHandler.ReorderTodosInColumn)
 			todos.POST("/bulk-move", todoHandler.BulkMoveTodos)
 
+			// Checklist specific operations
+			// todos.GET("/checklist", todoHandler.GetChecklistTodos)
+			// todos.POST("/:id/toggle-completion", todoHandler.ToggleTodoCompletion)
+			// todos.POST("/checklist/bulk-toggle", todoHandler.BulkToggleCompletion)
+
 			// Subtask routes nested under todos
 			todos.POST("/:id/subtasks", subtaskHandler.CreateSubtask)
 			todos.GET("/:id/subtasks", subtaskHandler.GetSubtasks)
@@ -762,12 +796,21 @@ func setupRouter(
 			analytics.GET("/release-stats/:id", releaseVersionHandler.GetReleaseStats)
 		}
 
-		// SEARCH ROUTES (Consolidated)
-		search := todoAppGroup.Group("/search")
-		{
-			search.GET("/projects", projectHandler.SearchProjects)
-			search.GET("/todos", todoHandler.SearchTodos)
-		}
+	}
+
+	// Global Search routes - All require authentication
+	searchGroup := v1.Group("/search")
+	searchGroup.Use(authMiddleware.RequireAuth())
+	{
+		// Global search endpoints
+		searchGroup.GET("", globalSearchHandler.GlobalSearch)
+		searchGroup.GET("/quick", globalSearchHandler.QuickSearch)
+		searchGroup.GET("/suggestions", globalSearchHandler.SearchSuggestions)
+		searchGroup.GET("/history", globalSearchHandler.SearchHistory)
+
+		// Legacy search endpoints (keep for backward compatibility)
+		searchGroup.GET("/projects", projectHandler.SearchProjects)
+		searchGroup.GET("/todos", todoHandler.SearchTodos)
 	}
 
 	// Reports routes - All require authentication
@@ -854,6 +897,11 @@ func setupRouter(
 				wsTodos.POST("/reorder", wsTodoHandler.ReorderTodosInColumn)
 				wsTodos.POST("/bulk-move", wsTodoHandler.BulkMoveTodos)
 
+				// Checklist operations with real-time updates
+				// wsTodos.GET("/checklist", wsTodoHandler.GetChecklistTodos)
+				// wsTodos.POST("/:id/toggle-completion", wsTodoHandler.ToggleTodoCompletion)
+				// wsTodos.POST("/checklist/bulk-toggle", wsTodoHandler.BulkToggleCompletion)
+
 				// Subtask operations with real-time updates
 				wsTodos.POST("/:id/subtasks", wsSubtaskHandler.CreateSubtask)
 				wsTodos.POST("/:id/subtasks/reorder", wsSubtaskHandler.ReorderSubtasks)
@@ -933,7 +981,8 @@ func setupRouter(
 				"todo_app": map[string]string{
 					"Projects":         "CRUD, search, stats, dashboard",
 					"Release Versions": "CRUD, upcoming, overdue, stats",
-					"Todos":            "CRUD, filter, search, complete/incomplete, pin",
+					"Todos":            "CRUD, filter, search, complete/incomplete, pin, checklist view",
+					"Checklist":        "GET /checklist, POST /:id/toggle-completion, POST /bulk-toggle",
 					"Subtasks":         "CRUD, reorder",
 					"Notes":            "CRUD, search",
 					"Scheduled Tasks":  "CRUD, calendar integration",

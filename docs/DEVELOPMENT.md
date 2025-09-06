@@ -115,7 +115,7 @@ The project includes a `.air.toml` configuration file that:
 
 - Watches `.go` files for changes
 - Excludes test files (`*_test.go`)
-- Builds to `tmp/macwrite-auth-api`
+- Builds to `tmp/quantumtask-auth-api`
 - Automatically restarts on file changes
 - Shows colored output for different operations
 
@@ -132,7 +132,7 @@ Edit `.air.toml` to modify:
 ## 📁 Project Structure
 
 ```
-macwrite-auth-api/
+quantumtask-auth-api/
 ├── cmd/server/main.go      # Application entry point
 ├── internal/               # Private application code
 │   ├── config/            # Configuration management
@@ -182,7 +182,7 @@ go test ./internal/service/ -v
 make db-reset
 
 # Check database status
-psql -d macwrite_auth -c "\dt"
+psql -d quantumtask_auth -c "\dt"
 ```
 
 ### 4. API Testing
@@ -228,10 +228,10 @@ cat .air.toml      # Verify configuration
 
 ```bash
 # Check PostgreSQL connection
-psql -d macwrite_auth -c "SELECT 1;"
+psql -d quantumtask_auth -c "SELECT 1;"
 
 # Verify schema
-psql -d macwrite_auth -c "\dt"
+psql -d quantumtask_auth -c "\dt"
 
 # Reset if needed
 make db-reset
@@ -271,7 +271,7 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=your_password
-DB_NAME=macwrite_auth
+DB_NAME=quantumtask_auth
 
 # JWT (required)
 JWT_SECRET=your-super-secret-jwt-key

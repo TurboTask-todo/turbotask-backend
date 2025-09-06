@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"macwrite-auth-api/pkg/redis"
+	"quantumtask-auth-api/pkg/redis"
 
 	"github.com/google/uuid"
 )

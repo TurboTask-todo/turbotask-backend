@@ -10,7 +10,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"macwrite-auth-api/internal/config"
+	"quantumtask-auth-api/internal/config"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"

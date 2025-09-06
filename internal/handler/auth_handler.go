@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strings"
 
-	"macwrite-auth-api/internal/middleware"
-	"macwrite-auth-api/internal/models"
-	"macwrite-auth-api/internal/service"
+	"quantumtask-auth-api/internal/middleware"
+	"quantumtask-auth-api/internal/models"
+	"quantumtask-auth-api/internal/service"
 
 	"github.com/gin-gonic/gin"
 )

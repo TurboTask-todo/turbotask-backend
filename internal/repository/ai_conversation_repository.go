@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"macwrite-auth-api/internal/database"
-	"macwrite-auth-api/internal/entity"
+	"quantumtask-auth-api/internal/database"
+	"quantumtask-auth-api/internal/entity"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"

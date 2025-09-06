@@ -74,7 +74,7 @@ Successfully delivered a **production-ready, scalable Golang authentication API*
 ### 📁 Project Structure
 
 ```
-macwrite-auth-api/
+quantumtask-auth-api/
 ├── cmd/server/                 # Application entry point
 ├── internal/
 │   ├── config/                 # Environment configuration

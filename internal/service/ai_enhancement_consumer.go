@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"macwrite-auth-api/pkg/queue"
-	"macwrite-auth-api/pkg/websocket"
+	"quantumtask-auth-api/pkg/queue"
+	"quantumtask-auth-api/pkg/websocket"
 
 	"github.com/google/uuid"
 )

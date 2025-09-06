@@ -6,11 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"macwrite-auth-api/internal/config"
-	"macwrite-auth-api/internal/models"
-	"macwrite-auth-api/internal/repository"
-	"macwrite-auth-api/pkg/auth"
-	"macwrite-auth-api/pkg/validation"
+	"quantumtask-auth-api/internal/config"
+	"quantumtask-auth-api/internal/models"
+	"quantumtask-auth-api/internal/repository"
+	"quantumtask-auth-api/pkg/auth"
+	"quantumtask-auth-api/pkg/validation"
 
 	"github.com/google/uuid"
 )

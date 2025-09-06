@@ -9,8 +9,8 @@ import (
 	"net/smtp"
 	"strconv"
 
-	"macwrite-auth-api/internal/config"
-	"macwrite-auth-api/internal/models"
+	"quantumtask-auth-api/internal/config"
+	"quantumtask-auth-api/internal/models"
 )
 
 // Client represents the email client

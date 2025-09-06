@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-
-	"macwrite-auth-api/internal/models"
-	"macwrite-auth-api/pkg/websocket"
+	"fmt"
+	"quantumtask-auth-api/internal/models"
+	"quantumtask-auth-api/pkg/websocket"
 
 	"github.com/google/uuid"
 )
@@ -253,6 +253,8 @@ func (s *WebSocketTodoService) MoveTodoToColumn(ctx context.Context, userID uuid
 	if err != nil {
 		return response, nil // Return response even if broadcast fails
 	}
+
+	fmt.Println("response", response)
 
 	// Broadcast the kanban move event as a todo update
 	changes := map[string]interface{}{
