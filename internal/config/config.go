@@ -214,7 +214,7 @@ func Load() (*Config, error) {
 		User:     getEnv("DB_USER", "neondb_owner"),
 		Password: getEnv("DB_PASSWORD", "npg_w5L4XCBkqDOJ"),
 		Name:     getEnv("DB_NAME", "neondb"),
-		SSLMode:  getEnv("DB_SSL_MODE", "disable"),
+		SSLMode:  getEnv("DB_SSL_MODE", "require"),
 		Pool: DatabasePoolConfig{
 			MaxConns:               int32(maxConns),
 			MinConns:               int32(minConns),
@@ -355,7 +355,7 @@ func Load() (*Config, error) {
 	}
 
 	config.Queue = QueueConfig{
-		URL:          getEnv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/"),
+		URL:          getEnv("RABBITMQ_URL", "amqps://turbotask:turbotask@lion.rmq.cloudamqp.com/zdbdgwix"), //amqp://guest:guest@localhost:5672/
 		ExchangeName: getEnv("QUEUE_EXCHANGE_NAME", "ai.enhancement.direct"),
 		MaxRetries:   queueMaxRetries,
 	}
