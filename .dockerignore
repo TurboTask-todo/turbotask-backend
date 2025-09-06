@@ -1,0 +1,21 @@
+# Ignore unnecessary files during Docker build
+.git
+.gitignore
+README.md
+.env*
+.air.toml
+tmp/
+vendor/
+*.log
+*.tmp
+.DS_Store
+.vscode/
+.idea/
+*.test
+coverage.out
+node_modules/
+.deploy/
+docs/
+examples/
+scripts/
+postman/
