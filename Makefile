@@ -203,7 +203,7 @@ docker-build: ## Build Docker image
 .PHONY: docker-run
 docker-run: ## Run Docker container
 	@echo "🐳 Running Docker container..."
-	docker run -p 8080:8080 --env-file .env macwrite-auth-api:latest
+	docker compose up -d
 
 # Cleanup targets
 .PHONY: clean

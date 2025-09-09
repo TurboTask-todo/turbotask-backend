@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # Go API Service
+  macwrite-auth-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: macwrite-auth-api
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:8080"
+    env_file:
+      - .env
+    environment:
+      # Override database connection for container-to-container communication
+      - DB_HOST=postgresql
+      - DB_PORT=5432
+      - DB_USER=${POSTGRES_USER:-postgres}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - DB_NAME=${POSTGRES_DB:-postgres}
+    networks:
+      - postgres-network
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - ./logs:/app/logs
+      - ./tmp:/app/tmp
+      - ./tmp/air:/app/.air
+      - ./tmp/air/air.toml:/app/.air/air.toml
+      - ./tmp/air/air.log:/app/.air/air.log
+      - ./tmp/air/air.log.1:/app/.air/air.log.1
+      - ./tmp/air/air.log.2:/app/.air/air.log.2
+      - ./tmp/air/air.log.3:/app/.air/air.log.3
+      - ./tmp/air/air.log.4:/app/.air/air.log.4
+      - ./tmp/air/air.log.5:/app/.air/air.log.5
+
+  postgresql:
+    image: postgres:16-alpine
+    container_name: postgres-postgresql
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-postgres}
+      - POSTGRES_LOGS_DB=${POSTGRES_LOGS_DB:-postgres_logs}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      # Map host port 5433 to container port 5432
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+      - ./scripts/postgres-init.sql:/docker-entrypoint-initdb.d/postgres-init.sql:ro
+    networks:
+      - postgres-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-postgres} -p 5432"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+# Networks
+networks:
+  postgres-network:
+    driver: bridge
+    name: postgres-network
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Volumes
+volumes:
+  postgresql_data:
+    driver: local
+    name: postgres-postgresql-data
